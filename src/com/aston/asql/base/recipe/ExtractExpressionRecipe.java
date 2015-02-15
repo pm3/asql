@@ -1,20 +1,24 @@
-package com.aston.asql.base;
+package com.aston.asql.base.recipe;
 
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 
-import com.aston.asql.ASqlBuilder;
-import com.aston.asql.IASqlBuilderAware;
-import com.aston.asql.IExecFactory;
+import com.aston.asql.base.ASqlRecipeCreator;
+import com.aston.asql.base.BaseSqlRecipe;
 import com.aston.asql.bean.annotation.Sql;
 import com.aston.utils.ValueHelper;
 
-public abstract class AExecFactory implements IExecFactory, IASqlBuilderAware {
-
-	protected ASqlBuilder builder;
+public class ExtractExpressionRecipe extends ASqlRecipeCreator {
 
 	@Override
-	public void setASqlBuilder(ASqlBuilder builder) {
-		this.builder = builder;
+	public int order() {
+		return 50;
+	}
+
+	@Override
+	public void build(Method method, BaseSqlRecipe recipe) throws SQLException {
+		if (recipe.expression == null)
+			recipe.expression = methodSql(method);
 	}
 
 	protected String methodSql(Method method) {

@@ -66,5 +66,4 @@ public class User {
 	public String toString() {
 		return "User [id=" + id + ", login=" + login + ", email=" + email + ", active=" + active + ", admin=" + admin + ", lastLogin=" + lastLogin + "]";
 	}
-
 }

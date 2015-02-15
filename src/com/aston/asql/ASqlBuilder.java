@@ -4,22 +4,33 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.aston.asql.base.BaseExecFactory;
-import com.aston.asql.base.BaseRowFactory;
-import com.aston.asql.base.BaseSelectResultFactory;
-import com.aston.asql.bean.BeanExecFactory;
+import com.aston.asql.base.BaseSqlRecipe;
+import com.aston.asql.base.recipe.BaseSelectResultRecipe;
+import com.aston.asql.base.recipe.ExtractExpressionRecipe;
+import com.aston.asql.base.recipe.InsertExecRecipe;
+import com.aston.asql.base.recipe.ParseBraceSqlRecipe;
+import com.aston.asql.base.recipe.SelectExecRecipe;
+import com.aston.asql.base.recipe.UpdateExecRecipe;
 import com.aston.asql.bean.BeanInfoFactory;
-import com.aston.asql.bean.BeanRowFactory;
+import com.aston.asql.bean.recipe.BeanDeleteRecipe;
+import com.aston.asql.bean.recipe.BeanLoadRecipe;
+import com.aston.asql.bean.recipe.BeanSaveExecRecipe;
+import com.aston.asql.bean.recipe.BeanSelectRecipe;
+import com.aston.asql.bean.recipe.BeanSelectResultRecipe;
+import com.aston.asql.bean.recipe.BeanWhereRecipe;
 import com.aston.asql.convert.BaseConverterFactory;
 import com.aston.asql.handler.ASqlHandler;
 import com.aston.asql.handler.FactoryHandler;
@@ -28,34 +39,43 @@ public class ASqlBuilder implements IConverterFatory {
 
 	private IConnectionProvider provider = null;
 	private List<Object> factories = new ArrayList<Object>();
-	private Map<Class<?>, Object> factoryProxies = new HashMap<Class<?>, Object>();
+	Map<Class<?>, Object> factoryProxies = new HashMap<Class<?>, Object>();
 	private Map<Object, IConverter> converters = new ConcurrentHashMap<Object, IConverter>();
+	private List<ISqlRecipeCreator> recipeCreators = new ArrayList<ISqlRecipeCreator>();
+	private boolean sorted = false;
 
 	public ASqlBuilder() {
 		init();
 	}
 
 	protected void init() {
+		addSqlRecipeCreator(new ExtractExpressionRecipe());
+		addSqlRecipeCreator(new ParseBraceSqlRecipe());
+		addSqlRecipeCreator(new BaseSelectResultRecipe());
+		addSqlRecipeCreator(new InsertExecRecipe());
+		addSqlRecipeCreator(new SelectExecRecipe());
+		addSqlRecipeCreator(new UpdateExecRecipe());
+
+		addSqlRecipeCreator(new BeanSelectResultRecipe());
+		addSqlRecipeCreator(new BeanSaveExecRecipe());
+		addSqlRecipeCreator(new BeanLoadRecipe());
+		addSqlRecipeCreator(new BeanSelectRecipe());
+		addSqlRecipeCreator(new BeanDeleteRecipe());
+		addSqlRecipeCreator(new BeanWhereRecipe());
+
 		addFactory(new BaseConverterFactory());
-
-		addFactory(new BaseExecFactory());
-		addFactory(new BaseSelectResultFactory());
-		addFactory(new BaseRowFactory());
-
 		addFactory(new BeanInfoFactory());
-		addFactory(new BeanExecFactory());
-		addFactory(new BeanRowFactory());
 	}
 
 	public void setConnectionProvider(IConnectionProvider provider) {
 		this.provider = provider;
 	}
 
-	public void addFactory(Object factory) {
-		if (factory != null) {
-			if (factory instanceof IASqlBuilderAware)
-				((IASqlBuilderAware) factory).setASqlBuilder(this);
-			factories.add(factory);
+	public void addFactory(Object fatory) {
+		if (fatory != null) {
+			if (fatory instanceof IASqlBuilderAware)
+				((IASqlBuilderAware) fatory).setASqlBuilder(this);
+			factories.add(fatory);
 		}
 	}
 
@@ -67,6 +87,36 @@ public class ASqlBuilder implements IConverterFatory {
 			factoryProxies.put(type, factoryProxy);
 		}
 		return factoryProxy;
+	}
+
+	public void addSqlRecipeCreator(ISqlRecipeCreator recipeCreator) {
+		if (recipeCreator != null) {
+			if (recipeCreator instanceof IASqlBuilderAware)
+				((IASqlBuilderAware) recipeCreator).setASqlBuilder(this);
+			recipeCreators.add(recipeCreator);
+			sorted = false;
+		}
+	}
+
+	public IExec<?> createExec(Method method) throws SQLException {
+		if (sorted == false) {
+			Collections.sort(recipeCreators, new Comparator<ISqlRecipeCreator>() {
+				@Override
+				public int compare(ISqlRecipeCreator o1, ISqlRecipeCreator o2) {
+					return o1.order() - o2.order();
+				}
+			});
+			sorted = true;
+			for (ISqlRecipeCreator c : recipeCreators)
+				System.out.println(c.getClass().getSimpleName() + " " + c.order());
+		}
+		BaseSqlRecipe recipe = new BaseSqlRecipe();
+		for (ISqlRecipeCreator c : recipeCreators) {
+			c.build(method, recipe);
+			if (recipe.exec != null)
+				return recipe.exec;
+		}
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -81,11 +131,6 @@ public class ASqlBuilder implements IConverterFatory {
 
 	public void addConverter(Class<?> type, IConverter converter) {
 		converters.put(type, converter);
-	}
-
-	public void addConverter(Class<?> type1, Class<?> type2, IConverter converter) {
-		converters.put(type1, converter);
-		converters.put(type2, converter);
 	}
 
 	@Override

@@ -8,7 +8,6 @@ import java.util.Map;
 
 import com.aston.asql.ASqlBuilder;
 import com.aston.asql.IExec;
-import com.aston.asql.IExecFactory;
 
 public class ASqlHandler implements InvocationHandler {
 
@@ -18,7 +17,7 @@ public class ASqlHandler implements InvocationHandler {
 	public ASqlHandler(ASqlBuilder builder, Class<?> type) throws SQLException {
 		this.builder = builder;
 		for (Method m : type.getDeclaredMethods()) {
-			IExec<?> e = builder.getFactory(IExecFactory.class).createExec(m);
+			IExec<?> e = builder.createExec(m);
 			if (e != null) {
 				execs.put(m, e);
 				System.out.println("method " + type.getSimpleName() + "." + m.getName() + " add exec " + e);
