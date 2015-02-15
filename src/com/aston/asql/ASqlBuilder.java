@@ -44,6 +44,8 @@ public class ASqlBuilder implements IConverterFatory {
 	private List<ISqlRecipeCreator> recipeCreators = new ArrayList<ISqlRecipeCreator>();
 	private boolean sorted = false;
 
+	private Class<? extends BaseSqlRecipe> recipeType = BaseSqlRecipe.class;
+
 	public ASqlBuilder() {
 		init();
 	}
@@ -89,6 +91,10 @@ public class ASqlBuilder implements IConverterFatory {
 		return factoryProxy;
 	}
 
+	public void setRecipeType(Class<? extends BaseSqlRecipe> recipeType) {
+		this.recipeType = recipeType;
+	}
+
 	public void addSqlRecipeCreator(ISqlRecipeCreator recipeCreator) {
 		if (recipeCreator != null) {
 			if (recipeCreator instanceof IASqlBuilderAware)
@@ -110,7 +116,12 @@ public class ASqlBuilder implements IConverterFatory {
 			for (ISqlRecipeCreator c : recipeCreators)
 				System.out.println(c.getClass().getSimpleName() + " " + c.order());
 		}
-		BaseSqlRecipe recipe = new BaseSqlRecipe();
+		BaseSqlRecipe recipe = null;
+		try {
+			recipe = recipeType.newInstance();
+		} catch (Exception e) {
+			throw new SQLException("can't create recipe " + e.getMessage(), e);
+		}
 		for (ISqlRecipeCreator c : recipeCreators) {
 			c.build(method, recipe);
 			if (recipe.exec != null)
