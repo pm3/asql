@@ -1,9 +1,15 @@
 package com.aston.asql.expr;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.aston.utils.StringHelper;
+
 public class SqlExprParser {
 
-	public String parse(String sql, IExprParamCreator paramCreator) {
+	public List<String> parse(String sql, IExprParamCreator paramCreator) {
 
+		List<String> l = new ArrayList<String>();
 		StringBuilder sb = new StringBuilder(sql.length());
 		char[] chars = sql.toCharArray();
 		for (int i = 0; i < chars.length; i++) {
@@ -18,13 +24,15 @@ public class SqlExprParser {
 				int end = parseExpr(sql, chars, i, paramCreator);
 				if (end == -1)
 					throw new IllegalStateException("sql ends inside expression" + sql.substring(i));
-				sb.append('?');
+				l.add(sb.toString());
+				sb.setLength(0);
 				i = end;
 			} else {
 				sb.append(ch);
 			}
 		}
-		return sb.toString();
+		l.add(sb.toString());
+		return l;
 	}
 
 	protected int parseQuote(char[] chars, int start) {
@@ -102,14 +110,14 @@ public class SqlExprParser {
 		try {
 			System.out.println(sql);
 			SqlExprParser p = new SqlExprParser();
-			String sql0 = p.parse(sql, new IExprParamCreator() {
+			List<String> sql0 = p.parse(sql, new IExprParamCreator() {
 
 				@Override
 				public void addParam(String expr, String converter) {
 					System.out.println("'" + expr + "' - '" + converter + "'");
 				}
 			});
-			System.out.println(sql0);
+			System.out.println(StringHelper.join(sql0, "?"));
 		} catch (Exception e) {
 			System.out.println(sql + e.getMessage());
 		}

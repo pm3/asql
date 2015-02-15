@@ -10,13 +10,11 @@ import com.aston.asql.result.ISelectResult;
 
 public class ExecSelect<T> implements IExec<T> {
 
-	protected String sql;
-	protected SqlParam[] params;
+	protected ISqlStatement sqls;
 	protected ISelectResult<T> selectResult;
 
-	public ExecSelect(String sql, SqlParam[] params, ISelectResult<T> selectResult) {
-		this.sql = sql;
-		this.params = params;
+	public ExecSelect(ISqlStatement sqls, ISelectResult<T> selectResult) {
+		this.sqls = sqls;
 		this.selectResult = selectResult;
 	}
 
@@ -27,8 +25,7 @@ public class ExecSelect<T> implements IExec<T> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			ps = c.prepareStatement(sql);
-			SqlParam.fillPs(ps, params, args);
+			ps = sqls.createPS(c, args, null);
 			rs = ps.executeQuery();
 			res = selectResult.result(rs);
 			rs.close();
@@ -52,7 +49,7 @@ public class ExecSelect<T> implements IExec<T> {
 
 	@Override
 	public String toString() {
-		return "ExecSelect" + " [" + sql + "]";
+		return "ExecSelect [" + sqls + "]";
 	}
 
 }

@@ -14,7 +14,7 @@ public class BaseConverterFactory implements IConverterFatory, IASqlBuilderAware
 	public void setASqlBuilder(ASqlBuilder builder) {
 		addConverter(builder, int.class, Integer.class, new IntConverter());
 		addConverter(builder, long.class, Long.class, new LongConverter());
-		addConverter(builder, boolean.class, BooleanConverter.class, new BooleanConverter());
+		addConverter(builder, boolean.class, Boolean.class, new BooleanConverter());
 		addConverter(builder, double.class, Double.class, new DoubleConverter());
 		builder.addConverter(String.class, new StringConverter());
 		builder.addConverter(Date.class, new TimestampConverter());

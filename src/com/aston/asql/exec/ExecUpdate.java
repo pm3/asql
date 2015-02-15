@@ -8,12 +8,10 @@ import com.aston.asql.IExec;
 
 public class ExecUpdate implements IExec<Integer> {
 
-	protected String sql;
-	protected SqlParam[] params;
+	protected ISqlStatement sqls;
 
-	public ExecUpdate(String sql, SqlParam[] params) {
-		this.sql = sql;
-		this.params = params;
+	public ExecUpdate(ISqlStatement sqls) {
+		this.sqls = sqls;
 	}
 
 	@Override
@@ -22,8 +20,7 @@ public class ExecUpdate implements IExec<Integer> {
 		Integer res = null;
 		PreparedStatement ps = null;
 		try {
-			ps = c.prepareStatement(sql);
-			SqlParam.fillPs(ps, params, args);
+			ps = sqls.createPS(c, args, null);
 			res = ps.executeUpdate();
 			ps.close();
 		} catch (SQLException e) {
@@ -40,7 +37,7 @@ public class ExecUpdate implements IExec<Integer> {
 
 	@Override
 	public String toString() {
-		return "ExecUpdate [" + sql + "]";
+		return "ExecUpdate [" + sqls + "]";
 	}
 
 }

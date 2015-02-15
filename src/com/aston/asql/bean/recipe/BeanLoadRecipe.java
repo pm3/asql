@@ -5,10 +5,10 @@ import java.sql.SQLException;
 
 import com.aston.asql.base.ASqlRecipeCreator;
 import com.aston.asql.base.BaseSqlRecipe;
+import com.aston.asql.base.SqlParam;
 import com.aston.asql.bean.BeanInfo;
-import com.aston.asql.bean.GetParamExpr;
 import com.aston.asql.bean.IBeanInfoFactory;
-import com.aston.asql.exec.SqlParam;
+import com.aston.asql.expr.GetParamExpr;
 
 public class BeanLoadRecipe extends ASqlRecipeCreator {
 

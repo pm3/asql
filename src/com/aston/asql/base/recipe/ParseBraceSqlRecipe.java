@@ -7,9 +7,11 @@ import java.util.List;
 
 import com.aston.asql.base.ASqlRecipeCreator;
 import com.aston.asql.base.BaseSqlRecipe;
+import com.aston.asql.base.SqlParam;
 import com.aston.asql.base.SqlParamCreator;
-import com.aston.asql.exec.SqlParam;
+import com.aston.asql.dynamic.DynamicConverter;
 import com.aston.asql.expr.SqlExprParser;
+import com.aston.utils.StringHelper;
 
 public class ParseBraceSqlRecipe extends ASqlRecipeCreator {
 
@@ -27,7 +29,14 @@ public class ParseBraceSqlRecipe extends ASqlRecipeCreator {
 	protected void build0(Method method, BaseSqlRecipe recipe) {
 		List<SqlParam> params = new ArrayList<SqlParam>();
 		SqlExprParser p = new SqlExprParser();
-		recipe.sql = p.parse(recipe.expression, new SqlParamCreator(builder, method.getParameterTypes(), params));
+		List<String> lsql = p.parse(recipe.expression, new SqlParamCreator(builder, method.getParameterTypes(), params));
+
+		boolean dynamic = false;
+		for (SqlParam pp : params) {
+			if (pp.converter instanceof DynamicConverter)
+				dynamic = true;
+		}
+		recipe.sql = dynamic ? StringHelper.join(lsql, DynamicConverter.DELIM) : StringHelper.join(lsql, "?");
 		recipe.params = params.toArray(new SqlParam[params.size()]);
 
 		String[] sql0 = recipe.sql.trim().toLowerCase().split("\\s", 2);

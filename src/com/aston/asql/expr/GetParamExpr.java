@@ -1,8 +1,6 @@
-package com.aston.asql.bean;
+package com.aston.asql.expr;
 
 import java.lang.reflect.Method;
-
-import com.aston.asql.exec.IExprEval;
 
 public class GetParamExpr implements IExprEval {
 

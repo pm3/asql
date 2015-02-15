@@ -3,7 +3,6 @@ package com.aston.asql.base;
 import java.util.Arrays;
 
 import com.aston.asql.IExec;
-import com.aston.asql.exec.SqlParam;
 import com.aston.asql.result.ISelectResult;
 
 public class BaseSqlRecipe {

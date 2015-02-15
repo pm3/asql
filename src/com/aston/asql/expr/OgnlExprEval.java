@@ -1,7 +1,5 @@
 package com.aston.asql.expr;
 
-import com.aston.asql.exec.IExprEval;
-
 import ognl.Ognl;
 
 public class OgnlExprEval implements IExprEval {

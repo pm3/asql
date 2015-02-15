@@ -8,14 +8,15 @@ import java.util.List;
 import com.aston.asql.IExec;
 import com.aston.asql.base.ASqlRecipeCreator;
 import com.aston.asql.base.BaseSqlRecipe;
+import com.aston.asql.base.SqlParam;
+import com.aston.asql.base.StaticSql;
 import com.aston.asql.bean.BeanInfo;
 import com.aston.asql.bean.BeanInfo.BeanProp;
 import com.aston.asql.bean.BeanSaveExec;
-import com.aston.asql.bean.GetParamExpr;
 import com.aston.asql.bean.IBeanInfoFactory;
 import com.aston.asql.exec.ExecInsert;
 import com.aston.asql.exec.ExecUpdate;
-import com.aston.asql.exec.SqlParam;
+import com.aston.asql.expr.GetParamExpr;
 
 public class BeanSaveExecRecipe extends ASqlRecipeCreator {
 
@@ -61,7 +62,8 @@ public class BeanSaveExecRecipe extends ASqlRecipeCreator {
 		sb1.setLength(sb1.length() - 1);
 		sb1.append(")");
 
-		return (IExec<?>) new ExecInsert(sb1.toString(), params1.toArray(new SqlParam[params1.size()]), bi.getId().getConverter(), bi.getId().getType());
+		StaticSql osql = new StaticSql(sb1.toString(), params1.toArray(new SqlParam[params1.size()]), builder);
+		return (IExec<?>) new ExecInsert(osql, bi.getId().getConverter(), bi.getId().getType());
 	}
 
 	protected IExec<?> updateExec(BeanInfo<?> bi) throws SQLException {
@@ -78,7 +80,8 @@ public class BeanSaveExecRecipe extends ASqlRecipeCreator {
 		sb2.append(" where id=?");
 		params2.add(new SqlParam(bi.getId().getName(), 0, new GetParamExpr(bi.getId().getGetter()), bi.getId().getConverter()));
 
-		return new ExecUpdate(sb2.toString(), params2.toArray(new SqlParam[params2.size()]));
+		StaticSql osql = new StaticSql(sb2.toString(), params2.toArray(new SqlParam[params2.size()]), builder);
+		return new ExecUpdate(osql);
 	}
 
 }

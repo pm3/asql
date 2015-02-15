@@ -1,5 +1,6 @@
 package asql;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import org.postgresql.ds.PGSimpleDataSource;
 
 import com.aston.asql.ASqlBuilder;
 import com.aston.asql.base.ThreadDataSourceConnection;
+import com.aston.asql.where.ConditionContainer;
 
 public class Test {
 
@@ -40,11 +42,23 @@ public class Test {
 		System.out.println(u1);
 		User u2 = i.select1(id);
 		System.out.println("select 1 " + u2);
-		List<User> l = i.select3(true);
-		for (User u3 : l)
+		List<User> l3 = i.select3(true);
+		for (User u3 : l3)
 			System.out.println("select 3 " + u3);
-		List<User> l2 = i.select4(true);
-		for (User u3 : l2)
-			System.out.println("select 4 " + u3);
+		List<User> l4 = i.select4(true);
+		for (User u4 : l4)
+			System.out.println("select 4 " + u4);
+
+		List<User> l5 = i.select5(new String[] { "a", "b" });
+		System.out.println(l5.size());
+		List<User> l6 = i.select6(Arrays.asList("a", "b", "pm2"));
+		System.out.println(l6.size());
+
+		ConditionContainer cc = ConditionContainer.and();
+		cc.eq("login", "pm2");
+		cc.eq("active", true);
+		List<User> l7 = i.select7(cc);
+		System.out.println(l7.size());
+
 	}
 }

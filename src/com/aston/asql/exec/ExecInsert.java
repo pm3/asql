@@ -11,14 +11,12 @@ import com.aston.asql.IExec;
 
 public class ExecInsert<T> implements IExec<T> {
 
-	protected String sql;
-	protected SqlParam[] params;
+	protected ISqlStatement sqls;
 	protected IConverter converter;
 	protected Class<T> returnType;
 
-	public ExecInsert(String sql, SqlParam[] params, IConverter converter, Class<T> returnType) {
-		this.sql = sql;
-		this.params = params;
+	public ExecInsert(ISqlStatement sqls, IConverter converter, Class<T> returnType) {
+		this.sqls = sqls;
 		this.converter = converter;
 		this.returnType = returnType;
 	}
@@ -31,8 +29,12 @@ public class ExecInsert<T> implements IExec<T> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			SqlParam.fillPs(ps, params, args);
+			ps = sqls.createPS(c, args, new IPreparedStatementCreator() {
+				@Override
+				public PreparedStatement createStatement(Connection c, String sql) throws SQLException {
+					return c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+				}
+			});
 			ps.executeUpdate();
 			rs = ps.getGeneratedKeys();
 			if (rs.next())
@@ -58,7 +60,7 @@ public class ExecInsert<T> implements IExec<T> {
 
 	@Override
 	public String toString() {
-		return "ExecInsert [" + sql + "]";
+		return "ExecInsert [" + sqls + "]";
 	}
 
 }

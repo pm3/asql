@@ -4,8 +4,7 @@ import java.util.List;
 
 import com.aston.asql.ASqlBuilder;
 import com.aston.asql.IConverter;
-import com.aston.asql.exec.IExprEval;
-import com.aston.asql.exec.SqlParam;
+import com.aston.asql.expr.IExprEval;
 import com.aston.asql.expr.IExprParamCreator;
 import com.aston.asql.expr.OgnlExprEval;
 
@@ -64,7 +63,7 @@ public class SqlParamCreator implements IExprParamCreator {
 			IExprEval ee = new OgnlExprEval(exprSufix);
 			params.add(new SqlParam(expr, pos, ee, null));
 		} catch (Exception e) {
-			throw new IllegalStateException("bad expresiion [" + expr + "] ognl=" + exprSufix);
+			throw new IllegalStateException("bad expresion [" + expr + "] ognl=" + exprSufix);
 		}
 	}
 

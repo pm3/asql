@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.aston.asql.bean.annotation.Sql;
+import com.aston.asql.where.ConditionContainer;
 
 public interface TestInterface {
 
@@ -27,4 +28,14 @@ public interface TestInterface {
 
 	@Sql("select id,login from sb_user where active={1}")
 	public List<User> select4(boolean active);
+
+	@Sql("select id,login from sb_user where login in({1,in})")
+	public List<User> select5(String[] in);
+
+	@Sql("where login in({1,in})")
+	public List<User> select6(List<String> in);
+
+	@Sql("where {1}")
+	public List<User> select7(ConditionContainer cc);
+
 }

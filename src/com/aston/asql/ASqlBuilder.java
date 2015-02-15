@@ -18,12 +18,10 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.aston.asql.base.BaseSqlRecipe;
+import com.aston.asql.base.recipe.BaseExecRecipe;
 import com.aston.asql.base.recipe.BaseSelectResultRecipe;
 import com.aston.asql.base.recipe.ExtractExpressionRecipe;
-import com.aston.asql.base.recipe.InsertExecRecipe;
 import com.aston.asql.base.recipe.ParseBraceSqlRecipe;
-import com.aston.asql.base.recipe.SelectExecRecipe;
-import com.aston.asql.base.recipe.UpdateExecRecipe;
 import com.aston.asql.bean.BeanInfoFactory;
 import com.aston.asql.bean.recipe.BeanDeleteRecipe;
 import com.aston.asql.bean.recipe.BeanLoadRecipe;
@@ -32,6 +30,8 @@ import com.aston.asql.bean.recipe.BeanSelectRecipe;
 import com.aston.asql.bean.recipe.BeanSelectResultRecipe;
 import com.aston.asql.bean.recipe.BeanWhereRecipe;
 import com.aston.asql.convert.BaseConverterFactory;
+import com.aston.asql.dynamic.InConverter;
+import com.aston.asql.dynamic.WhereConverterFactory;
 import com.aston.asql.handler.ASqlHandler;
 import com.aston.asql.handler.FactoryHandler;
 
@@ -45,9 +45,7 @@ public class ASqlBuilder implements IConverterFatory {
 		addSqlRecipeCreator(new ExtractExpressionRecipe());
 		addSqlRecipeCreator(new ParseBraceSqlRecipe());
 		addSqlRecipeCreator(new BaseSelectResultRecipe());
-		addSqlRecipeCreator(new InsertExecRecipe());
-		addSqlRecipeCreator(new SelectExecRecipe());
-		addSqlRecipeCreator(new UpdateExecRecipe());
+		addSqlRecipeCreator(new BaseExecRecipe());
 
 		addSqlRecipeCreator(new BeanSelectResultRecipe());
 		addSqlRecipeCreator(new BeanSaveExecRecipe());
@@ -58,6 +56,9 @@ public class ASqlBuilder implements IConverterFatory {
 
 		addFactory(new BaseConverterFactory());
 		addFactory(new BeanInfoFactory());
+		addFactory(new WhereConverterFactory());
+
+		addConverter("in", new InConverter());
 	}
 
 	private IConnectionProvider provider = null;
