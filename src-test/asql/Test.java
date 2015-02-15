@@ -9,6 +9,7 @@ import org.postgresql.ds.PGSimpleDataSource;
 import com.aston.asql.ASqlBuilder;
 import com.aston.asql.base.ThreadDataSourceConnection;
 import com.aston.asql.where.ConditionContainer;
+import com.aston.asql.where.SqlQuery;
 
 public class Test {
 
@@ -57,6 +58,11 @@ public class Test {
 		ConditionContainer cc = ConditionContainer.and();
 		cc.eq("login", "pm2");
 		cc.eq("active", true);
+
+		SqlQuery q1 = new SqlQuery("select x.id from sb_user x where {where}");
+		q1.where().eq("x.active", true);
+		cc.subquery("id", "in", q1);
+
 		List<User> l7 = i.select7(cc);
 		System.out.println(l7.size());
 

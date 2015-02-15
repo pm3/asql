@@ -12,6 +12,7 @@ public class WhereConverterFactory implements IConverterFatory {
 	public IConverter createConverter(Class<?> type) {
 		if (ICondition.class.isAssignableFrom(type))
 			return whereConverter;
+
 		return null;
 	}
 

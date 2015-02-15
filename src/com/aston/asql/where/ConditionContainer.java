@@ -46,25 +46,7 @@ public class ConditionContainer implements ICondition {
 		if (val != null) {
 			String sval = val.toString();
 			sval = (sval.indexOf('*') >= 0) ? sval.replace('*', '%') : sval + "%";
-			add(new Single2ValCondition("lower(" + field + ")", "like", sval.toLowerCase()));
-		}
-		return this;
-	}
-
-	public ConditionContainer likeInside(String field, Object val) {
-		if (val != null) {
-			String sval = val.toString();
-			sval = (sval.indexOf('*') >= 0) ? sval.replace('*', '%') : "%" + sval + "%";
-			add(new Single2ValCondition(field, "like", sval.toLowerCase()));
-		}
-		return this;
-	}
-
-	public ConditionContainer ilikeInside(String field, Object val) {
-		if (val != null) {
-			String sval = val.toString();
-			sval = (sval.indexOf('*') >= 0) ? sval.replace('*', '%') : "%" + sval + "%";
-			add(new Single2ValCondition("lower(" + field + ")", "like", sval.toLowerCase()));
+			add(new Single2ValCondition(field, "ilike", sval.toLowerCase()));
 		}
 		return this;
 	}
@@ -82,7 +64,7 @@ public class ConditionContainer implements ICondition {
 		if (val != null) {
 			String sval = val.toString();
 			sval = (sval.indexOf('*') >= 0) ? sval.replace('*', '%') : sval + "%";
-			add(new Single2ValCondition("lower(" + field + ")", "not like", sval.toLowerCase()));
+			add(new Single2ValCondition(field, "not ilike", sval.toLowerCase()));
 		}
 		return this;
 	}
