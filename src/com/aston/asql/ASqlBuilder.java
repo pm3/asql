@@ -37,15 +37,6 @@ import com.aston.asql.handler.FactoryHandler;
 
 public class ASqlBuilder implements IConverterFatory {
 
-	private IConnectionProvider provider = null;
-	private List<Object> factories = new ArrayList<Object>();
-	Map<Class<?>, Object> factoryProxies = new HashMap<Class<?>, Object>();
-	private Map<Object, IConverter> converters = new ConcurrentHashMap<Object, IConverter>();
-	private List<ISqlRecipeCreator> recipeCreators = new ArrayList<ISqlRecipeCreator>();
-	private boolean sorted = false;
-
-	private Class<? extends BaseSqlRecipe> recipeType = BaseSqlRecipe.class;
-
 	public ASqlBuilder() {
 		init();
 	}
@@ -69,9 +60,14 @@ public class ASqlBuilder implements IConverterFatory {
 		addFactory(new BeanInfoFactory());
 	}
 
+	private IConnectionProvider provider = null;
+
 	public void setConnectionProvider(IConnectionProvider provider) {
 		this.provider = provider;
 	}
+
+	private List<Object> factories = new ArrayList<Object>();
+	private Map<Class<?>, Object> factoryProxies = new HashMap<Class<?>, Object>();
 
 	public void addFactory(Object fatory) {
 		if (fatory != null) {
@@ -90,6 +86,10 @@ public class ASqlBuilder implements IConverterFatory {
 		}
 		return factoryProxy;
 	}
+
+	private List<ISqlRecipeCreator> recipeCreators = new ArrayList<ISqlRecipeCreator>();
+	private boolean sorted = false;
+	private Class<? extends BaseSqlRecipe> recipeType = BaseSqlRecipe.class;
 
 	public void setRecipeType(Class<? extends BaseSqlRecipe> recipeType) {
 		this.recipeType = recipeType;
@@ -135,6 +135,8 @@ public class ASqlBuilder implements IConverterFatory {
 		ASqlHandler ih = new ASqlHandler(this, type);
 		return (X) Proxy.newProxyInstance(type.getClassLoader(), new Class[] { type }, ih);
 	}
+
+	private Map<Object, IConverter> converters = new ConcurrentHashMap<Object, IConverter>();
 
 	public void addConverter(String name, IConverter converter) {
 		converters.put(name, converter);
